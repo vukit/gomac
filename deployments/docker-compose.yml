@@ -1,0 +1,41 @@
+version: "3.7"
+services:
+  gophermart:
+    build:
+      context: ./..
+      dockerfile: ./deployments/docker/gophermart/Dockerfile
+    image: gomac-gophermart
+    restart: always
+    container_name: gomac-gophermart
+    ports:
+      - 6060:8080
+    depends_on:
+      - postgresql
+
+  accural:
+    build:
+      context: ./..
+      dockerfile: ./deployments/docker/accrual/Dockerfile
+    image: gomac-accural
+    restart: always
+    container_name: gomac-accural
+    ports:
+      - 7070:8080
+    depends_on:
+      - postgresql
+
+  postgresql:
+    build:
+      context: ./..
+      dockerfile: ./deployments/docker/postgresql/Dockerfile
+    image: gomac-postgresql
+    restart: always
+    container_name: gomac-postgresql
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: gophermart
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-d", "gophermart", "-U", "postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
